@@ -1,0 +1,27 @@
+[build-system]
+requires=["setuptools>=68","wheel"]
+build-backend="setuptools.build_meta"
+
+[project]
+name="neural-chaos-lab"
+version="0.1.0"
+description="Chaotic system simulation + forecasting with PyTorch LSTM"
+readme="README.md"
+requires-python=">=3.10"
+authors=[{name="Lord Nibbler"}]
+dependencies=[
+  "numpy>=1.26.4",
+  "pandas>=2.2.2",
+  "plotly>=5.22.0",
+  "fastapi>=0.112.0",
+  "uvicorn[standard]>=0.30.0",
+  "typer>=0.12.3",
+  "pydantic>=2.8.0",
+  "torch>=2.3.0",
+]
+
+[project.scripts]
+chaoslab="chaos_lab.cli:app"
+
+[tool.setuptools.packages.find]
+include=["chaos_lab*"]
