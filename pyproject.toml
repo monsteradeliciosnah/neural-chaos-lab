@@ -25,3 +25,6 @@ chaoslab="chaos_lab.cli:app"
 
 [tool.setuptools.packages.find]
 include=["chaos_lab*"]
+
+[project.optional-dependencies]
+test = ["coverage","fastapi","httpx","pytest"]

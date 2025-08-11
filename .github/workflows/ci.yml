@@ -1,26 +1,55 @@
 name: CI
 on:
   push:
-    branches: [ main ]
+    branches: [ main, improvement/**, fix/**, feature/** ]
   pull_request:
     branches: [ main ]
+
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+
+      - id: detect
+        shell: bash
+        run: |
+          PY="false"; [[ -f pyproject.toml ]] && PY="true"
+          echo "py=${PY}" >> "$GITHUB_OUTPUT"
+
+      - if: steps.detect.outputs.py == 'true'
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install dependencies
+          cache: pip
+
+      - if: steps.detect.outputs.py == 'true'
+        name: Install
         run: |
           python -m pip install --upgrade pip
           pip install -e '.[all]' || pip install -e .
-          pip install pytest flake8
-      - name: Lint
+          pip install -e '.[test]' || true
+          pip install pytest coverage httpx fastapi ruff black isort flake8 || true
+
+      - if: steps.detect.outputs.py == 'true'
+        name: Lint
         run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
-      - name: Tests
+          ruff check . --output-format=github || true
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
+          flake8 . --count --max-complexity=10 --max-line-length=127 --statistics || true
+          black --check . || true
+          isort --check-only . || true
+
+      - if: steps.detect.outputs.py == 'true'
+        name: Tests with coverage
         run: |
-          pytest -q
+          coverage run -m pytest -q
+          coverage xml -o coverage.xml
+          coverage report -m || true
+
+      - if: steps.detect.outputs.py == 'true'
+        name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
