@@ -1,7 +1,8 @@
-import typer
 import pandas as pd
-from .sim import lorenz, henon
-from .model import train_model, predict
+import typer
+
+from .model import predict, train_model
+from .sim import henon, lorenz
 
 app = typer.Typer(help="Neural Chaos Lab CLI")
 
@@ -31,8 +32,9 @@ def train(
 ):
     df = pd.read_csv(data)
     m = train_model(df.values, win, horizon, epochs, lr)
-    import torch
     import os
+
+    import torch
 
     os.makedirs("models", exist_ok=True)
     torch.save(m.state_dict(), "models/lstm.pt")
@@ -42,6 +44,7 @@ def train(
 @app.command()
 def forecast(data: str = "data/series.csv", steps: int = 200):
     import torch
+
     from .model import LSTMForecast
 
     df = pd.read_csv(data)

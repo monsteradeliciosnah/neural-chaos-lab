@@ -1,0 +1,2 @@
+[console_scripts]
+chaoslab = chaos_lab.cli:app

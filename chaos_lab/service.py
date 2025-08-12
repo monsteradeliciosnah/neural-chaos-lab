@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from .sim import lorenz, henon
+
+from .sim import henon, lorenz
 
 app = FastAPI(title="Neural Chaos Lab API")
 
